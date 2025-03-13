@@ -13,7 +13,7 @@ This project is a Python-based CLI tool that allows users to search for research
 
 ---
 
-## 🛠️ **Technologies stack**
+## 🛠️ **Technologies stack and Libraries Used**
 - **Python 3.9+** – Programming language  
 - **Biopython** – For connecting with the PubMed API  
 - **Pandas** – For data handling and CSV generation  
