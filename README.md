@@ -10,7 +10,6 @@ This project is a Python-based CLI tool that allows users to search for research
 ♦️ **Author Affiliation Filtering** – Filters papers based on pharma/biotech-related affiliations.  
 ♦️ **Structured CSV Output** – Saves results to a CSV file with key details.  
 ♦️ **Command-Line Support** – Supports options like `--debug` and `--file`.  
-♦️ **Git** - For version control → [Git Documentation](https://git-scm.com/doc)
 
 ---
 
@@ -20,7 +19,7 @@ This project is a Python-based CLI tool that allows users to search for research
 - **Pandas** – For data handling and CSV generation  
 - **Poetry** – For dependency management  
 - **argparse** – For CLI handling  
-
+- **Git** - For version control → [Git Documentation](https://git-scm.com/doc)
 ---
 
 ## 📥**Installation and Setup Process:**
