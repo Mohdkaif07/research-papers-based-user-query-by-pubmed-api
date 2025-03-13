@@ -101,7 +101,7 @@ Edit
 
 ----
 
-##🔧**Troubleshooting:**
+## 🔧 **Troubleshooting:**
 ### **1. Permission Denied for Poetry Commands
 Try running commands with sudo:
 ```bash
