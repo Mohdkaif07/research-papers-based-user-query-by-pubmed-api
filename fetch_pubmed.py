@@ -24,10 +24,17 @@ def is_biotech(affiliation):
 
 #  Check for non-academic affiliation
 def is_non_academic(affiliation):
-    return any(keyword in affiliation.lower() for keyword in NON_ACADEMIC_KEYWORDS) if affiliation else False
+    if affiliation:
+        # Explicitly check if the affiliation includes known academic institutions or university-related terms
+        academic_keywords = ["university", "school of", "college", "institute"]
+        # If it's an academic affiliation, return False
+        if any(keyword in affiliation.lower() for keyword in academic_keywords):
+            return False
+        return any(keyword in affiliation.lower() for keyword in NON_ACADEMIC_KEYWORDS)
+    return False
 
 # Fetch papers from PubMed
-def fetch_papers(query, max_results=20, debug=False):
+def fetch_papers(query, max_results=100, debug=False):
     try:
         handle = Entrez.esearch(db="pubmed", term=query, retmax=max_results)
         record = Entrez.read(handle)
@@ -39,7 +46,7 @@ def fetch_papers(query, max_results=20, debug=False):
             return []
 
         if debug:
-            print(f"if not Found {len(paper_ids)} papers")
+            print(f"Found {len(paper_ids)} papers")
 
         #  Fetch papers in medline format
         handle = Entrez.efetch(db="pubmed", id=",".join(paper_ids), rettype="medline", retmode="text")
@@ -52,7 +59,7 @@ def fetch_papers(query, max_results=20, debug=False):
         print(f"❌ Error during fetching: {e}")
         return []
 
-#  Parse Medline records
+# Parse Medline records
 def parse_medline_records(medline_records, debug):
     papers = []
     records = medline_records.strip().split("\n\n")
@@ -62,9 +69,11 @@ def parse_medline_records(medline_records, debug):
             "Title": None,
             "Authors": [],
             "Affiliations": [],
-            "Corresponding Author Email": None,
+            "Non-academic Author": [],
+            "Company Affiliation": [],
+            "Corresponding Author Email": "Not provided",  # Default to "Not provided"
             "Pubmed ID": None,
-            "Publication Date": None
+            "Publication Date": None  # Initialize with None
         }
 
         lines = record.split("\n")
@@ -73,23 +82,37 @@ def parse_medline_records(medline_records, debug):
                 paper_data["Pubmed ID"] = line[6:].strip()
             elif line.startswith("TI  - "):
                 paper_data["Title"] = line[6:].strip()
-            elif line.startswith("DP  - "):
+            elif line.startswith("DP  - "):  # Publication Date
                 paper_data["Publication Date"] = line[6:].strip()
-            elif line.startswith("AU  - "):
+            elif line.startswith("AU  - "):  # Authors
                 author = line[6:].strip()
                 paper_data["Authors"].append(author)
-            elif line.startswith("AD  - "):
+            elif line.startswith("AD  - "):  # Affiliations
                 affiliation = line[6:].strip()
                 paper_data["Affiliations"].append(affiliation)
-            elif line.startswith("CA  - "):
+                # Check if the author has a non-academic affiliation
+                if is_non_academic(affiliation):
+                    paper_data["Non-academic Author"].append(paper_data["Authors"][-1])  # Append last author
+                # Check if affiliation is company-related
+                if is_biotech(affiliation):
+                    paper_data["Company Affiliation"].append(affiliation)
+            elif line.startswith("CA  - "):  # Corresponding Author Email
                 paper_data["Corresponding Author Email"] = line[6:].strip()
+
+        # Handle case where no publication date is provided
+        if not paper_data["Publication Date"]:
+            paper_data["Publication Date"] = "Not provided"
+
+        # If corresponding author email is not found, default to "Not provided"
+        if not paper_data["Corresponding Author Email"]:
+            paper_data["Corresponding Author Email"] = "Not provided"
 
         if should_include_paper(paper_data, debug):
             papers.append(paper_data)
 
     return papers
 
-#  Check if paper should be included based on biotech and non-academic rules
+# Check if paper should be included based on biotech and non-academic rules
 def should_include_paper(paper, debug):
     matched = False
     all_non_academic = True
@@ -97,7 +120,6 @@ def should_include_paper(paper, debug):
     for affiliation in paper["Affiliations"]:
         if is_biotech(affiliation):
             matched = True
-
         if not is_non_academic(affiliation):
             all_non_academic = False
 
@@ -109,11 +131,22 @@ def should_include_paper(paper, debug):
         if debug:
             print(f"❌ Paper excluded: {paper['Title']}")
         return False
-    
-#  Save to CSV
+
+# Save to CSV
 def convert_to_csv(papers, filename):
     if papers:
-        df = pd.DataFrame(papers)
+        # Reorder columns as required: Pubmed ID, Title, Publication Date, Non-academic Author, Company Affiliation, Corresponding Author Email
+        ordered_papers = [{
+            "Pubmed ID": paper["Pubmed ID"],
+            "Title": paper["Title"],
+            "Publication Date": paper["Publication Date"],
+            "Non-academic Author": ', '.join(paper["Non-academic Author"]),
+            "Company Affiliation": ', '.join(paper["Company Affiliation"]),
+            "Corresponding Author Email": paper["Corresponding Author Email"]
+        } for paper in papers]
+
+        # Create DataFrame and save to CSV
+        df = pd.DataFrame(ordered_papers)
         df.to_csv(filename, index=False)
         print(f"✅ Results saved to {filename}")
     else:
@@ -122,13 +155,18 @@ def convert_to_csv(papers, filename):
 # Print to console
 def print_to_console(papers):
     if papers:
-        df = pd.DataFrame(papers)
-        # Clean up the output by flattening lists for authors and affiliations
-        df['Authors'] = df['Authors'].apply(lambda authors: ', '.join(authors))
-        df['Affiliations'] = df['Affiliations'].apply(lambda affils: ', '.join(affils))
-        df['Corresponding Author Email'] = df['Corresponding Author Email'].fillna("Not provided")
-        
-        # This will print the DataFrame to the console
+        # Reorder columns and clean up the output for console print
+        ordered_papers = [{
+            "Pubmed ID": paper["Pubmed ID"],
+            "Title": paper["Title"],
+            "Publication Date": paper["Publication Date"],
+            "Non-academic Author": ', '.join(paper["Non-academic Author"]),
+            "Company Affiliation": ', '.join(paper["Company Affiliation"]),
+            "Corresponding Author Email": paper["Corresponding Author Email"]
+        } for paper in papers]
+
+        # Create DataFrame and print to console
+        df = pd.DataFrame(ordered_papers)
         print(df.to_string(index=False))
     else:
         print("❌ No matching papers found.")
@@ -138,7 +176,7 @@ def main():
     parser = argparse.ArgumentParser(description="Fetch research papers from PubMed")
 
     parser.add_argument("query", type=str, help="Search query for PubMed")
-    parser.add_argument("-m", "--max_results", type=int, default=50, help="Maximum number of results to fetch")
+    parser.add_argument("-m", "--max_results", type=int, default=100, help="Maximum number of results to fetch")
     parser.add_argument("-f", "--file", type=str, help="File to save results (CSV). If not provided, output will be printed to console")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
     args = parser.parse_args()
