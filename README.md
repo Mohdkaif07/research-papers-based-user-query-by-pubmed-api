@@ -108,6 +108,21 @@ If you get encoding errors, convert files to UTF-8:
 iconv -f WINDOWS-1252 -t UTF-8 README.md > README-converted.md
 ```
 
+## ✅ **Requirements**
+### **1. Functional Requirements**
+- **Adherence to the problem statement** – The program should strictly follow the problem statement and deliver the expected output.  
+- **Ability to fetch and filter results correctly** – The program should accurately fetch research papers and filter them based on pharma/biotech affiliations.  
+
+---
+
+### **2. Non-functional Requirements**
+- **Typed Python** – Use type hints consistently for all functions and variables.  
+- **Performance** – Optimize API calls and processing to minimize execution time.  
+- **Readability** – Ensure clear and maintainable code with meaningful variable names, comments, and docstrings.  
+- **Organization** – Maintain logical separation of concerns using modular functions and classes.  
+- **Robustness** – Include error handling for invalid queries, API failures, and missing data to prevent crashes and improve user experience.  
+
+
 
 
 
