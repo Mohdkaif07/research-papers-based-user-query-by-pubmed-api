@@ -14,11 +14,12 @@ This project is a Python-based CLI tool that allows users to search for research
 ---
 
 ## 🛠️ **Technologies stack and Libraries Used**
-- **Python 3.9+** – Programming language  
-- **Biopython** – For connecting with the PubMed API  
-- **Pandas** – For data handling and CSV generation  
-- **Poetry** – For dependency management  
-- **argparse** – For CLI handling  
+- **Python 3.9+** – [Download](https://www.python.org/downloads/)  
+- **Biopython** – For fetching data from the PubMed API using `Entrez` → [Biopython Documentation](https://biopython.org/wiki/Main_Page)  
+- **Pandas** – For handling and processing data → [Pandas Documentation](https://pandas.pydata.org/)  
+- **Poetry** – For managing project dependencies → [Poetry Documentation](https://python-poetry.org/)  
+- **argparse** – For handling command-line arguments → [argparse Documentation](https://docs.python.org/3/library/argparse.html)  
+- **ChatGPT** – Used for generating code, debugging, and improving documentation → [ChatGPT](https://chat.openai.com)  
 - **Git** - For version control → [Git Documentation](https://git-scm.com/doc)
 ---
 
