@@ -9,7 +9,7 @@ This project is a Python-based CLI tool that allows users to search for research
 ♦️ **PubMed API Integration** – Fetch research papers directly from PubMed using `Entrez`.  
 ♦️ **Author Affiliation Filtering** – Filters papers based on pharma/biotech-related affiliations.  
 ♦️ **Structured CSV Output** – Saves results to a CSV file with key details.  
-♦️ **Command-Line Support** – Supports options like `--debug` and `--file`.  
+♦️ **Command-Line Support** – Supports options like `--debug` , `--help` and `--file`.  
 
 ---
 
@@ -70,10 +70,16 @@ poetry run get-papers-list "AI in medicine" -m 20 -f results.csv
 ```
 
 ### **3. Enable Debug Mode**
-To enable debug mode and print detailed output:
+To debug and print detailed output:
 ```bash
 poetry run get-papers-list "drug discovery" -d
 ```
+### **4.help or Display usage instructions.**
+To Display usage instructions:
+```bash
+poetry run get-papers-list "cancer" -h or --help
+```
+
 ---
 
 ## **🔗 Project Structure**
